@@ -1,0 +1,84 @@
+Object Storage - StackHPC
+
+1 of 2
+
+https://wiki.stackhpc.com/doc/object-storage-YP1DK8oVDi
+
+Object Storage
+There is a Ceph Object Storage service running on SMS lab which is accessible via the
+Openstack Swift API endpoint. It is primarily for testing rather than resilient and/or
+performant object storage and is currently only accessible from inside the SMS lab
+network at the url https://api.sms-lab.cloud:6780 .
+
+Authentication
+The ceph radosgw instance is configured to authenticate via OpenStack KeyStone.
+Therefore, as explained in the official ceph docs
+
+, in order to access the S3 API a set
+
+of credentials must be generated with openstack ec2 credentials create . The
+access and secret fields of the generated credentials can then be used to as the
+
+‘AWS access key’ and ‘AWS secret key’ when making requests to the API endpoint.
+
+Python example
+The following code demonstrates using the boto3 python library (the official AWS
+python SDK) to interact with the object storage service:
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+
+import boto3
+access_key = <AWS-access-key>
+secret_key = <AWS-secret-key>
+# Configure s3 client
+session = boto3.session.Session()
+s3_client = session.client(
+service_name='s3',
+aws_access_key_id=access_key,
+aws_secret_access_key=secret_key,
+endpoint_url='https://api.sms-lab.cloud:6780/',
+)
+# List existing buckets
+response = s3_client.list_buckets()
+print(response['Buckets'])
+# Create a new bucket
+bucket_name = <name>
+s3_client.create_bucket(Bucket=bucket_name)
+# Add a local file as a new object
+response = s3_client.upload_file(<local-file-path>, bucket_name, <newobject-name>)
+print(response['Contents'])
+
+12/07/2023, 10:27
+
+Object Storage - StackHPC
+
+2 of 2
+
+https://wiki.stackhpc.com/doc/object-storage-YP1DK8oVDi
+
+12/07/2023, 10:27
+
+
